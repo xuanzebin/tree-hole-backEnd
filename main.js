@@ -6,9 +6,10 @@ AV.init({
     appKey: APP_KEY
 })
 var messageList = []
-var query = new AV.Query('message')
-
-
+var query = new AV.Query('message') 
+// var blackList = new AV.Query('blacklist')
+// blackList.descending("createdAt").find().then((message)=>{console.log('1',message)})
+// console.log(query.equalTo('objectId','5c72b539c05a807a4db79079'))
 let $messageList = $('#messageList')
 function getDateDiff(dateTimeStamp) {
     let minute = 1000 * 60
@@ -46,12 +47,13 @@ query.descending("createdAt").find().then((message) => {
     message.forEach((value, index) => {
         let messageData = JSON.parse(value.attributes.data)
         let id = value.id
+        let ownerId = messageData.objectId
         let userName = messageData.nickName
         let content = messageData.value
         let files = messageData.files
         let time = getDateDiff(new Date(value.createdAt).getTime())
         let picLength = files.length
-        messageList.push({ time, userName, content, id, files, picLength })
+        messageList.push({ time, userName, content, id, files, picLength, ownerId })
         let $li = $('<li class="message"></li>')
         $messageList.append($li)
         let $spanUser = $(`<span class="userName">${userName}</span>`)
@@ -59,7 +61,7 @@ query.descending("createdAt").find().then((message) => {
         let $spanTime = $(`<span class="time">${time}</span>`)
         let $spanPicLength = $(`<span class="picLength    ">${picLength}</span>`)
         let $messageBox = $('<div class="messageBox"></div>')
-        let $buttonBox = $('<div class="buttonBox"><button class="deleted">删除</button>')
+        let $buttonBox = $('<div class="buttonBox"><button class="deleted">删除</button><button class="addToTree">封号</button></div>')
         $messageBox.append($spanTime, $spanUser, $spanContent, $spanPicLength)
         $li.append($messageBox, $buttonBox)
         $buttonBox.on('click', '.deleted', (e) => {
