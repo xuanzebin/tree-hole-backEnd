@@ -54,7 +54,7 @@ a{
     cursor: pointer;
 }
 .buttonBox button.addToTree{
-    background:red;
+    background:blue;
     border:none;
     border-radius:4px;
     padding:5px 10px;
@@ -62,8 +62,8 @@ a{
     color:white;
 }
 .buttonBox button.addToTree.disabled{
-    background: #ddd;
-    cursor: default;
+    background: red;
+    cursor: pointer;
 }
 .buttonBox button.deleted{
     background:red;

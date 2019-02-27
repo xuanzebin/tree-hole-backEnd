@@ -61,7 +61,13 @@ query.descending("createdAt").find().then((message) => {
         let $spanTime = $(`<span class="time">${time}</span>`)
         let $spanPicLength = $(`<span class="picLength    ">${picLength}</span>`)
         let $messageBox = $('<div class="messageBox"></div>')
-        let $buttonBox = $('<div class="buttonBox"><button class="deleted">删除</button><button class="addToTree">封号</button></div>')
+        let $buttonBox
+        if (value.attributes.show){
+            $buttonBox = $('<div class="buttonBox"><button class="deleted">删除</button><button class="addToTree disabled">撤下留言</button></div>')
+        } else {
+            $buttonBox = $('<div class="buttonBox"><button class="deleted">删除</button><button class="addToTree">添加到树洞</button></div>')
+            
+        }
         $messageBox.append($spanTime, $spanUser, $spanContent, $spanPicLength)
         $li.append($messageBox, $buttonBox)
         $buttonBox.on('click', '.deleted', (e) => {
@@ -71,7 +77,7 @@ query.descending("createdAt").find().then((message) => {
             console.log('删除', messageList[index])
             let deletedId = messageList[index].id
             var todo = AV.Object.createWithoutData('message', deletedId)
-            todo.destroy().then(function (success) {
+            todo.destroy().then((success) => {
                 // 删除成功
                 let array=messageList[index].files.map((value) => {
                     let picID = value.picID
@@ -87,6 +93,27 @@ query.descending("createdAt").find().then((message) => {
                 // 删除失败
                 alert('删除失败，请重试！')
             })
+        })
+        $($buttonBox.children()[1]).on('click',(e)=>{
+            // 第一个参数是 className，第二个参数是 objectId
+            if (value.attributes.show) {
+                var todo = AV.Object.createWithoutData('message', id);
+                // 修改属性
+                todo.set('show',false);
+                // 保存到云端
+                todo.save().then(()=>{
+                    $($buttonBox.children()[1]).text('添加到树洞').removeClass('disabled')
+                })
+            } else {
+                var todo = AV.Object.createWithoutData('message', id);
+                // 修改属性
+                todo.set('show',true);
+                // 保存到云端
+                todo.save().then(()=>{
+                    $($buttonBox.children()[1]).text('撤下留言').addClass('disabled')
+                })
+            }
+            value.attributes.show=!value.attributes.show
         })
     })
 })
