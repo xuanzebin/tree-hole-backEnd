@@ -6,7 +6,7 @@ AV.init({
     appKey: APP_KEY
 })
 var messageList = []
-var query = new AV.Query('message') 
+var query = new AV.Query('message')
 // var blackList = new AV.Query('blacklist')
 // blackList.descending("createdAt").find().then((message)=>{console.log('1',message)})
 // console.log(query.equalTo('objectId','5c72b539c05a807a4db79079'))
@@ -46,9 +46,11 @@ function getDateDiff(dateTimeStamp) {
 query.descending("createdAt").find().then((message) => {
     message.forEach((value, index) => {
         let messageData = JSON.parse(value.attributes.data)
+        let hideName = value.attributes.hideName
         let id = value.id
         let ownerId = messageData.objectId
         let userName = messageData.nickName
+        if (hideName) userName += ' (匿名)'
         let content = messageData.value
         let files = messageData.files
         let time = getDateDiff(new Date(value.createdAt).getTime())
@@ -62,11 +64,11 @@ query.descending("createdAt").find().then((message) => {
         let $spanPicLength = $(`<span class="picLength    ">${picLength}</span>`)
         let $messageBox = $('<div class="messageBox"></div>')
         let $buttonBox
-        if (value.attributes.show){
+        if (value.attributes.show) {
             $buttonBox = $('<div class="buttonBox"><button class="deleted">删除</button><button class="addToTree disabled">撤下留言</button></div>')
         } else {
             $buttonBox = $('<div class="buttonBox"><button class="deleted">删除</button><button class="addToTree">添加到树洞</button></div>')
-            
+
         }
         $messageBox.append($spanTime, $spanUser, $spanContent, $spanPicLength)
         $li.append($messageBox, $buttonBox)
@@ -79,12 +81,12 @@ query.descending("createdAt").find().then((message) => {
             var todo = AV.Object.createWithoutData('message', deletedId)
             todo.destroy().then((success) => {
                 // 删除成功
-                let array=messageList[index].files.map((value) => {
+                let array = messageList[index].files.map((value) => {
                     let picID = value.picID
                     var file = AV.File.createWithoutData(picID);
                     return file.destroy()
                 })
-                Promise.all(array).then((success)=>{
+                Promise.all(array).then((success) => {
                     console.log('删除成功！')
                     $parentList.remove()
                     messageList.splice(index, 1)
@@ -94,26 +96,26 @@ query.descending("createdAt").find().then((message) => {
                 alert('删除失败，请重试！')
             })
         })
-        $($buttonBox.children()[1]).on('click',(e)=>{
+        $($buttonBox.children()[1]).on('click', (e) => {
             // 第一个参数是 className，第二个参数是 objectId
             if (value.attributes.show) {
                 var todo = AV.Object.createWithoutData('message', id);
                 // 修改属性
-                todo.set('show',false);
+                todo.set('show', false);
                 // 保存到云端
-                todo.save().then(()=>{
+                todo.save().then(() => {
                     $($buttonBox.children()[1]).text('添加到树洞').removeClass('disabled')
                 })
             } else {
                 var todo = AV.Object.createWithoutData('message', id);
                 // 修改属性
-                todo.set('show',true);
+                todo.set('show', true);
                 // 保存到云端
-                todo.save().then(()=>{
+                todo.save().then(() => {
                     $($buttonBox.children()[1]).text('撤下留言').addClass('disabled')
                 })
             }
-            value.attributes.show=!value.attributes.show
+            value.attributes.show = !value.attributes.show
         })
     })
 })
