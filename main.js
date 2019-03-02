@@ -119,4 +119,21 @@ query.descending("createdAt").find().then((message) => {
         })
     })
 })
-
+let value
+let timeId
+$('#POST-password').on('change',(e)=>{
+    value=e.target.value
+})
+$('#submitButton').on('click',()=>{
+    if (value==='sysu1112') {
+        $('.wrapper').addClass('active')
+    } else {
+        $('#POST-password').val('')
+        let $error = $('.error')
+        $error.addClass('active')
+        if (timeId) window.clearTimeout(timeId)
+        timeId = setTimeout(() => {
+            $error.removeClass('active')
+        }, 1500);
+    }
+})

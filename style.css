@@ -79,7 +79,58 @@ a{
 .buttonBox button.disabled:hover{
     color:white;
 }   
-
+.wrapper {
+    position:fixed;
+    left: 0; right: 0; top: 0; bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: black;
+}
+.inputWrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width:30%;
+    border:1px solid white;
+}
+.wrapper .inputRow  {
+    color:white;
+}
+.wrapper .inputRow label,
+.wrapper .inputRow input{
+    font-size:20px;
+}
+.wrapper .row{
+    display: inline-block;
+    width:90%;
+    text-align: center;
+    margin:10px;    
+}
+.wrapper button{
+    width:90%;
+    height:2.5em;
+    font-size:20px;
+    background: white;
+    border-radius: 5px;
+}
+.wrapper .row{
+    display: inline-block;
+}
+.wrapper.active{
+    display: none;
+}
+.wrapper .error{
+    position: absolute;
+    top:100%; left:0;
+    color:red;
+    display:none;
+}
+.wrapper .active{
+    display: inline;
+}
 @media (max-width: 500px) {
     .topic{
         width:100%;
@@ -102,5 +153,8 @@ a{
     .messageBox{
         width:100%;
         margin-bottom:20px;
+    }
+    .inputWrapper{
+        width:80%;
     }
 }
