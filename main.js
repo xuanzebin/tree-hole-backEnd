@@ -127,6 +127,7 @@ $('#POST-password').on('change',(e)=>{
 $('#submitButton').on('click',()=>{
     if (value==='sysu1112') {
         $('.wrapper').addClass('active')
+        window.localStorage.setItem('treeHolePassWord','sysu1112')
     } else {
         $('#POST-password').val('')
         let $error = $('.error')
@@ -137,3 +138,8 @@ $('#submitButton').on('click',()=>{
         }, 1500);
     }
 })
+
+let password=window.localStorage.getItem('treeHolePassWord')
+if (password && password==='sysu1112'){
+    $('.wrapper').addClass('active')
+}
