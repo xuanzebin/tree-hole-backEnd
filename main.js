@@ -7,9 +7,7 @@ AV.init({
 })
 var messageList = []
 var query = new AV.Query('message')
-// var blackList = new AV.Query('blacklist')
-// blackList.descending("createdAt").find().then((message)=>{console.log('1',message)})
-// console.log(query.equalTo('objectId','5c72b539c05a807a4db79079'))
+
 let $messageList = $('#messageList')
 function getDateDiff(dateTimeStamp) {
     let minute = 1000 * 60
