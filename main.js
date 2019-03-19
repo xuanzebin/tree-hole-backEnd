@@ -62,80 +62,115 @@ query.descending("createdAt").find().then((message) => {
         let $spanPicLength = $(`<span class="picLength    ">${picLength}</span>`)
         let $messageBox = $('<div class="messageBox"></div>')
         let $buttonBox
+        let deletedTittle,addToTreeTittle
+        let deletedClass = ''
+        let addToTreeClass = ''
+        let deletedStatus,addToTreeStatus
         if (value.attributes.show) {
-            $buttonBox = $('<div class="buttonBox"><button class="deleted">删除</button><button class="addToTree disabled">撤下留言</button></div>')
+            if (value.attributes.expire) {
+                addToTreeTittle = '留言已过期'
+                deletedTittle = '审核已通过'
+                addToTreeClass = 'expire'
+            } else {
+                addToTreeTittle = '撤下留言'
+                deletedTittle = '审核已通过'
+                addToTreeClass = 'warn'
+            }
+            deletedClass = 'disabled'
         } else {
-            $buttonBox = $('<div class="buttonBox"><button class="deleted">删除</button><button class="addToTree">添加到树洞</button></div>')
-
+            if (value.attributes.expire) {
+                addToTreeTittle = '审核不通过'
+                deletedTittle = '立即删除'
+                addToTreeClass = 'disabled'
+            } else {
+                addToTreeTittle = '通过审核'
+                deletedTittle = '不通过审核'
+            }
         }
+        $buttonBox = $(`<div class="buttonBox"><button class="deleted ${deletedClass}"  ${deletedClass}>${deletedTittle}</button><button class="addToTree ${addToTreeClass}" ${addToTreeClass}>${addToTreeTittle}</button></div>`)
+
         $messageBox.append($spanTime, $spanUser, $spanContent, $spanPicLength)
         $li.append($messageBox, $buttonBox)
         $buttonBox.on('click', '.deleted', (e) => {
             let $deletedButton = $(e.currentTarget)
+            console.log($deletedButton.text())
             let $parentList = $deletedButton.parents('.message')
             let index = $parentList.index()
             console.log('删除', messageList[index])
             let deletedId = messageList[index].id
-            var todo = AV.Object.createWithoutData('message', deletedId)
-            todo.destroy().then((success) => {
-                // 删除成功
-                let array = messageList[index].files.map((value) => {
-                    let picID = value.picID
-                    var file = AV.File.createWithoutData(picID);
-                    return file.destroy()
+            if ($deletedButton.text() === '不通过审核') {
+                var todo = AV.Object.createWithoutData('message', id);
+                // 修改属性
+                todo.set('expire', true);
+                // 保存到云端
+                todo.save().then(() => {
+                    $($buttonBox.children()[0]).text('立即删除')
+                    $($buttonBox.children()[1]).text('审核不通过').addClass('disabled').attr('disabled',true)
                 })
-                Promise.all(array).then((success) => {
-                    console.log('删除成功！')
-                    $parentList.remove()
-                    messageList.splice(index, 1)
+            } else {
+                var todo = AV.Object.createWithoutData('message', deletedId)
+                todo.destroy().then((success) => {
+                    // 删除成功
+                    let array = messageList[index].files.map((value) => {
+                        let picID = value.picID
+                        var file = AV.File.createWithoutData(picID);
+                        return file.destroy()
+                    })
+                    Promise.all(array).then((success) => {
+                        console.log('删除成功！')
+                        $parentList.remove()
+                        messageList.splice(index, 1)
+                    })
+                }, function (error) {
+                    // 删除失败
+                    alert('删除失败，请重试！')
                 })
-            }, function (error) {
-                // 删除失败
-                alert('删除失败，请重试！')
-            })
+            }
         })
         $($buttonBox.children()[1]).on('click', (e) => {
             // 第一个参数是 className，第二个参数是 objectId
-            if (value.attributes.show) {
+            if (value.attributes.show && !value.attributes.expire) {
                 var todo = AV.Object.createWithoutData('message', id);
                 // 修改属性
-                todo.set('show', false);
+                todo.set('expire', true);
                 // 保存到云端
                 todo.save().then(() => {
-                    $($buttonBox.children()[1]).text('添加到树洞').removeClass('disabled')
+                    $($buttonBox.children()[1]).text('留言已过期').removeClass('warn').addClass('expire')
+                    value.attributes.expire = true
                 })
-            } else {
+            } else if (!value.attributes.show) {
                 var todo = AV.Object.createWithoutData('message', id);
                 // 修改属性
                 todo.set('show', true);
                 // 保存到云端
                 todo.save().then(() => {
-                    $($buttonBox.children()[1]).text('撤下留言').addClass('disabled')
+                    $($buttonBox.children()[1]).text('撤下留言').addClass('warn')
+                    $($buttonBox.children()[0]).text('审核已通过').addClass('disabled').attr('disabled',true)
+                    value.attributes.show = true
                 })
             }
-            value.attributes.show = !value.attributes.show
         })
     })
 })
 let value
 let timeId
-$('#POST-password').on('input',(e)=>{
-    value=e.target.value
+$('#POST-password').on('input', (e) => {
+    value = e.target.value
 })
-$('#submitButton').on('click',()=>{
+$('#submitButton').on('click', () => {
     checkPassword()
 })
-document.addEventListener('keypress',keypressHandle)
-function keypressHandle(e){
-    if (e.key==='Enter') {
+document.addEventListener('keypress', keypressHandle)
+function keypressHandle(e) {
+    if (e.key === 'Enter') {
         checkPassword()
     }
 }
-function checkPassword(){
-    if (value==='sysu1112') {
+function checkPassword() {
+    if (value === 'sysu1112') {
         $('.wrapper').addClass('active')
-        document.removeEventListener('keypress',keypressHandle)
-        window.localStorage.setItem('treeHolePassWord','sysu1112')
+        document.removeEventListener('keypress', keypressHandle)
+        window.localStorage.setItem('treeHolePassWord', 'sysu1112')
     } else {
         $('#POST-password').val('')
         let $error = $('.error')
@@ -146,8 +181,8 @@ function checkPassword(){
         }, 1500);
     }
 }
-let password=window.localStorage.getItem('treeHolePassWord')
-if (password && password==='sysu1112'){
+let password = window.localStorage.getItem('treeHolePassWord')
+if (password && password === 'sysu1112') {
     $('.wrapper').addClass('active')
-    document.removeEventListener('keypress',keypressHandle)
+    document.removeEventListener('keypress', keypressHandle)
 }

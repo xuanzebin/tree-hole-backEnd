@@ -61,9 +61,18 @@ a{
     box-shadow:0 0 3px rgba(0,0,0,0.5);
     color:white;
 }
-.buttonBox button.addToTree.disabled{
+.buttonBox button.addToTree.warn{
     background: red;
     cursor: pointer;
+}
+.buttonBox button.addToTree.expire{
+    background: rgb(163, 175, 50);
+    cursor: not-allowed;
+}
+.buttonBox button.deleted.disabled,
+.buttonBox button.addToTree.disabled{
+    background: #ddd;
+    cursor: not-allowed;
 }
 .buttonBox button.deleted{
     background:red;
