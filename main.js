@@ -119,12 +119,22 @@ query.descending("createdAt").find().then((message) => {
 })
 let value
 let timeId
-$('#POST-password').on('change',(e)=>{
+$('#POST-password').on('input',(e)=>{
     value=e.target.value
 })
 $('#submitButton').on('click',()=>{
+    checkPassword()
+})
+document.addEventListener('keypress',keypressHandle)
+function keypressHandle(e){
+    if (e.key==='Enter') {
+        checkPassword()
+    }
+}
+function checkPassword(){
     if (value==='sysu1112') {
         $('.wrapper').addClass('active')
+        document.removeEventListener('keypress',keypressHandle)
         window.localStorage.setItem('treeHolePassWord','sysu1112')
     } else {
         $('#POST-password').val('')
@@ -135,9 +145,9 @@ $('#submitButton').on('click',()=>{
             $error.removeClass('active')
         }, 1500);
     }
-})
-
+}
 let password=window.localStorage.getItem('treeHolePassWord')
 if (password && password==='sysu1112'){
     $('.wrapper').addClass('active')
+    document.removeEventListener('keypress',keypressHandle)
 }
